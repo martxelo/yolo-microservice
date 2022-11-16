@@ -31,10 +31,10 @@ def annotate_img(image, boxes, image_size):
         color = colors[labels.index(label)%len(colors)]
 
         # draw rectangle
-        draw.rectangle([x0, y0, x1, y1], outline=color)
+        draw.rectangle([x0, y0, x1, y1], outline=color, width=5)
 
         # draw text
-        txt_size = min(10, int(image_size[1]/40))
+        txt_size = min(15, int(image_size[1]/40))
         font = ImageFont.truetype('Pillow/Tests/fonts/DejaVuSans.ttf', txt_size)
         y0 = max(y0, txt_size)
         text = label + '-' + '{:.1f}'.format(confidence*100) + '%'
