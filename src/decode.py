@@ -30,16 +30,16 @@ def calc_area(x1, x2, y1, y2):
 def calc_overlap(box1, box2):
 
     # box 1
-    xmin1 = box1[2] - box1[5]/2
-    xmax1 = box1[2] + box1[5]/2
-    ymin1 = box1[3] - box1[4]/2
-    ymax1 = box1[3] + box1[4]/2
+    xmin1 = box1[2]
+    xmax1 = box1[3]
+    ymin1 = box1[4]
+    ymax1 = box1[5]
 
     # box 1
-    xmin2 = box2[2] - box2[5]/2
-    xmax2 = box2[2] + box2[5]/2
-    ymin2 = box2[3] - box2[4]/2
-    ymax2 = box2[3] + box2[4]/2
+    xmin2 = box2[2]
+    xmax2 = box2[3]
+    ymin2 = box2[4]
+    ymax2 = box2[5]
 
     # intersection coordinates
     ixmin = max(xmin1, xmin2)
@@ -84,8 +84,8 @@ def non_max_supression(boxes, max_overlap=0.25):
 
 def scale_boxes(boxes, size, img_size):
 
-    scale_x = img_size[1]/size
-    scale_y = img_size[0]/size
+    scale_x = img_size[0]/size
+    scale_y = img_size[1]/size
 
     scaled_boxes = []
 
@@ -93,12 +93,12 @@ def scale_boxes(boxes, size, img_size):
 
         label = box[0]
         confidence = box[1]
-        x = box[2]*scale_x
-        y = box[3]*scale_y
-        w = box[4]*scale_y
-        h = box[5]*scale_x
+        xmin = box[2]*scale_x
+        xmax = box[3]*scale_x
+        ymin = box[4]*scale_y
+        ymax = box[5]*scale_y
 
-        scaled_boxes.append([label, confidence, x, y, w, h])
+        scaled_boxes.append([label, confidence, xmin, xmax, ymin, ymax])
 
     return scaled_boxes
 
@@ -147,7 +147,13 @@ def decode_pred(pred_img, yolo_size, threshold = 0.5):
                 # get label
                 label = labels[np.argmax(anchor[cell_x, cell_y, 5:])]
 
+                # convert to vertices
+                xmin = y - w/2
+                xmax = y + w/2
+                ymin = x - h/2
+                ymax = x + h/2
+
                 # add to list of boxes
-                boxes.append([label, confidence, x, y, w, h])
+                boxes.append([label, confidence, xmin, xmax, ymin, ymax])
     
     return boxes
