@@ -7,7 +7,7 @@ from yolo.model import start_model
 
 app = Flask(__name__)
 
-@app.route('/predict', methods=['POST'])
+@app.route('/predict', methods=['GET'])
 def predict():
 
     # read image
