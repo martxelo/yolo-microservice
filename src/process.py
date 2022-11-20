@@ -4,9 +4,9 @@ import io
 from PIL import Image
 import numpy as np
 
-from yolo import model
-from yolo.annotate import annotate_img
-from yolo.decode import decode_pred, non_max_supression, scale_boxes
+from src import model
+from src.annotate import annotate_img
+from src.decode import decode_pred, non_max_supression, scale_boxes
 
 yolo_size = 512
 

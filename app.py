@@ -2,8 +2,8 @@ import base64
 
 from flask import Flask, request, jsonify
 
-from yolo.process import process_img
-from yolo.model import start_model
+from src.process import process_img
+from src.model import start_model
 
 app = Flask(__name__)
 
