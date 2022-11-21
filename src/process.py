@@ -21,7 +21,7 @@ def process_img(file):
     Parameters
     ----------
     file: BufferedReader
-        The with the image information.
+        The image information.
     
     Returns
     ----------
