@@ -22,7 +22,8 @@ def annotate_img(image, boxes):
         The annotated image.
     '''
     # get image size
-    img_size = image.size
+    width = image.size[0]
+    height = image.size[1]
 
     # list of labels
     labels = list(set([box[0] for box in boxes]))
@@ -44,9 +45,9 @@ def annotate_img(image, boxes):
         
         # limit vertices to image
         xmin = max(xmin, 0)
-        xmax = min(xmax, img_size[0] - 1)
+        xmax = min(xmax, width - 1)
         ymin = max(ymin, 0)
-        ymax = min(ymax, img_size[1] - 1)
+        ymax = min(ymax, height - 1)
 
         # get color
         color = colors[labels.index(label)%len(colors)]
@@ -55,10 +56,10 @@ def annotate_img(image, boxes):
         draw.rectangle([xmin, ymin, xmax, ymax], outline=color, width=5)
 
         # draw text
-        txt_size = min(15, int(img_size[1]/40))
+        txt_size = min(15, int(height/40))
         font = ImageFont.truetype('Pillow/Tests/fonts/DejaVuSans.ttf', txt_size)
         ymin = max(ymin, txt_size)
-        text = label + '-' + '{:.1f}'.format(confidence*100) + '%'
+        text = f'{label}-{confidence*100:.1f}%'
         draw.text((xmin, ymin), text, anchor='lb', font=font, fill=color)
 
     return image
