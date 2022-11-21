@@ -5,6 +5,16 @@ import numpy as np
 
 
 def get_labels():
+    '''Get label list.
+
+    Reads the coco classes file and creates a list with
+    all the labels.
+
+    Returns
+    ----------
+    labels: list
+        The list with the coco classes.
+    '''
 
     with open('classes/coco_classes.txt', 'r') as f:
         labels = f.readlines()
@@ -15,19 +25,73 @@ def get_labels():
 
 
 def sigmoid(x):
+    '''Applies the sigmoid.
+
+    Takes a numpy array and calculates the sigmoid
+    of the values (element-wise).
+
+    Parameters
+    ----------
+    x: np.ndarray
+        The input values.
     
+    Returns
+    ----------
+    sigmoid: np.ndarray
+        The sigmoid of the values
+    ''' 
     return 1.0/(1.0 + np.exp(-x))
 
 
-def calc_area(x1, x2, y1, y2):
+def calc_area(xmin, xmax, ymin, ymax):
+    '''Calculate the area of a rectangle.
 
-    x = max((x2 - x1), 0)
-    y = max((y2 - y1), 0)
+    Calculates the area of the rectangle with the position
+    of the edges. Assumes that xmin<xmax and ymin<ymax. Otherwise
+    the result is zero (used for intersection over union).
+
+    Parameters
+    ----------
+    xmin: float
+        The left edge.
+    xmax: float
+        The right edge.
+    ymin: float
+        The upper edge.
+    ymax: float
+        The lower edge.
+    
+    Returns
+    ----------
+    area: float
+        The area of the rectangle.
+    '''
+    x = max((xmax - xmin), 0)
+    y = max((ymax - ymin), 0)
 
     return x * y
 
 
 def calc_overlap(box1, box2):
+    '''Calculates the overlap of two boxes.
+
+    The overlap is calculated as the intersection over
+    union of the boxes. If both boxes are the same the
+    result is 1. If they do not overlap the the result
+    is 0.
+
+    Parameters
+    ----------
+    box1: list
+        The first detection box.
+    box2: list
+        The second detection box.
+    
+    Returns
+    ----------
+    iou: float
+        The intersection over union of the boxes.
+    '''
 
     # box 1
     xmin1 = box1[2]
@@ -56,6 +120,23 @@ def calc_overlap(box1, box2):
 
 
 def non_max_supression(boxes, max_overlap=0.25):
+    '''Applies non max supression.
+
+    This function takes all the boxes and removes the ones
+    that overlap too much with others. If two boxes overlap
+    more than the threshold then the one with lower confidence
+    is removed from the list.
+
+    Parameters
+    ----------
+    boxes: list
+        The list with the labels, probability and bounding boxes.
+    
+    Returns
+    ----------
+    boxes: list
+        The filtered list with the labels, probability and bounding boxes.
+    '''
 
     # sort by confidence
     boxes = sorted(boxes, key=itemgetter(1,3), reverse=True)
@@ -83,10 +164,30 @@ def non_max_supression(boxes, max_overlap=0.25):
 
 
 def scale_boxes(boxes, size, img_size):
+    '''Scale the values to the original size.
 
+    Takes the boxes from yolo size and scales them
+    to the original image size.
+
+    Parameters
+    ----------
+    boxes: list
+        The list with the labels, probability and bounding boxes.
+    size: int
+        The size of the yolo input.
+    img_size: tuple
+        The size of the original image. 
+    
+    Returns
+    ----------
+    boxes: list
+        The scaled list with the labels, probability and bounding boxes.
+    '''
+    # get the scale for both dimensions
     scale_x = img_size[0]/size
     scale_y = img_size[1]/size
 
+    # empty list
     scaled_boxes = []
 
     for box in boxes:
@@ -103,7 +204,31 @@ def scale_boxes(boxes, size, img_size):
     return scaled_boxes
 
 
-def decode_pred(pred_img, yolo_size, threshold = 0.5):
+def decode_pred(pred_img, yolo_size, threshold=0.5):
+    '''Decode the prediction values.
+
+    YOLO gives three tensors with different number of pixels.
+    Each one has three stacked anchors. An anchor is a 3D tensor
+    with the information of a detection for each pixel.
+
+    This function takes the tensors and decode the prediction values.
+    The position, the dimensions, the confidence and the detected
+    class.
+
+    Parameters
+    ----------
+    pred_img: list
+        The list the three predictions.
+    yolo_size: int
+        The size of the yolo input.
+    threshold: float
+        The threshold value for consider a true detection.
+    
+    Returns
+    ----------
+    boxes: list
+        The list with the labels, probability and bounding boxes.    
+    '''
 
     labels = get_labels()
 

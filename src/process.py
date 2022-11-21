@@ -1,6 +1,3 @@
-import base64
-import io
-
 from PIL import Image
 import numpy as np
 
@@ -12,7 +9,28 @@ yolo_size = 512
 
 
 def process_img(file):
+    '''Process and image.
 
+    Takes a image file, resizes it to a fixed size and feeds it to
+    the YOLOV3 neural network. Then gets the prediction and process
+    it:
+    - Decode the tensor output information.
+    - Applies non max supression.
+    - Scale the result to the original size.
+    
+    Parameters
+    ----------
+    file: BufferedReader
+        The with the image information.
+    
+    Returns
+    ----------
+    image: PIL.Image
+        The annotated image.
+    boxes: list
+        The list with the labels, probability and bounding boxes.
+    '''
+    # read file
     image = Image.open(file).convert('RGB')
 
     # get original size
@@ -38,6 +56,6 @@ def process_img(file):
     boxes = scale_boxes(boxes, yolo_size, img_size)
 
     # create annotations
-    image = annotate_img(image, boxes, img_size)
+    image = annotate_img(image, boxes)
 
     return image, boxes
