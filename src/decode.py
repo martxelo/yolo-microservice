@@ -131,6 +131,8 @@ def non_max_supression(boxes, max_overlap=0.25):
     ----------
     boxes: list
         The list with the labels, probability and bounding boxes.
+    max_overlap: float
+        The maximum overlap allowed.
     
     Returns
     ----------
@@ -183,9 +185,13 @@ def scale_boxes(boxes, size, img_size):
     boxes: list
         The scaled list with the labels, probability and bounding boxes.
     '''
+    # get dimensions
+    width = img_size[0]
+    height = img_size[1]
+
     # get the scale for both dimensions
-    scale_x = img_size[0]/size
-    scale_y = img_size[1]/size
+    scale_x = width/size
+    scale_y = height/size
 
     # empty list
     scaled_boxes = []
@@ -218,7 +224,7 @@ def decode_pred(pred_img, yolo_size, threshold=0.5):
     Parameters
     ----------
     pred_img: list
-        The list the three predictions.
+        The list with the three predictions.
     yolo_size: int
         The size of the yolo input.
     threshold: float
