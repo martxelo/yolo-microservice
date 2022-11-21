@@ -20,7 +20,7 @@ def get_labels():
         labels = f.readlines()
 
     labels = [label[:-1] for label in labels]
-    
+
     return labels
 
 
@@ -34,13 +34,13 @@ def sigmoid(x):
     ----------
     x: np.ndarray
         The input values.
-    
+
     Returns
     ----------
     sigmoid: np.ndarray
         The sigmoid of the values
-    ''' 
-    return 1.0/(1.0 + np.exp(-x))
+    '''
+    return 1.0 / (1.0 + np.exp(-x))
 
 
 def calc_area(xmin, xmax, ymin, ymax):
@@ -60,7 +60,7 @@ def calc_area(xmin, xmax, ymin, ymax):
         The upper edge.
     ymax: float
         The lower edge.
-    
+
     Returns
     ----------
     area: float
@@ -86,7 +86,7 @@ def calc_overlap(box1, box2):
         The first detection box.
     box2: list
         The second detection box.
-    
+
     Returns
     ----------
     iou: float
@@ -116,7 +116,7 @@ def calc_overlap(box1, box2):
     area_2 = calc_area(xmin2, xmax2, ymin2, ymax2)
     area_in = calc_area(ixmin, ixmax, iymin, iymax)
 
-    return area_in/(area_1 + area_2 - area_in)
+    return area_in / (area_1 + area_2 - area_in)
 
 
 def non_max_supression(boxes, max_overlap=0.25):
@@ -133,7 +133,7 @@ def non_max_supression(boxes, max_overlap=0.25):
         The list with the labels, probability and bounding boxes.
     max_overlap: float
         The maximum overlap allowed.
-    
+
     Returns
     ----------
     boxes: list
@@ -141,11 +141,11 @@ def non_max_supression(boxes, max_overlap=0.25):
     '''
 
     # sort by confidence
-    boxes = sorted(boxes, key=itemgetter(1,3), reverse=True)
+    boxes = sorted(boxes, key=itemgetter(1, 3), reverse=True)
 
     # empty list
     final_boxes = []
-    while len(boxes)>0:
+    while len(boxes) > 0:
 
         # add the box with highest confidence
         max_conf_box = boxes.pop(0)
@@ -159,7 +159,7 @@ def non_max_supression(boxes, max_overlap=0.25):
             if overlap > max_overlap:
                 remove_idx.append(i)
 
-        # remove 
+        # remove
         boxes = [boxes[i] for i in range(len(boxes)) if i not in remove_idx]
 
     return final_boxes
@@ -178,8 +178,8 @@ def scale_boxes(boxes, size, img_size):
     size: int
         The size of the yolo input.
     img_size: tuple
-        The size of the original image. 
-    
+        The size of the original image.
+
     Returns
     ----------
     boxes: list
@@ -190,8 +190,8 @@ def scale_boxes(boxes, size, img_size):
     height = img_size[1]
 
     # get the scale for both dimensions
-    scale_x = width/size
-    scale_y = height/size
+    scale_x = width / size
+    scale_y = height / size
 
     # empty list
     scaled_boxes = []
@@ -200,10 +200,10 @@ def scale_boxes(boxes, size, img_size):
 
         label = box[0]
         confidence = box[1]
-        xmin = box[2]*scale_x
-        xmax = box[3]*scale_x
-        ymin = box[4]*scale_y
-        ymax = box[5]*scale_y
+        xmin = box[2] * scale_x
+        xmax = box[3] * scale_x
+        ymin = box[4] * scale_y
+        ymax = box[5] * scale_y
 
         scaled_boxes.append([label, confidence, xmin, xmax, ymin, ymax])
 
@@ -229,35 +229,31 @@ def decode_pred(pred_img, yolo_size, threshold=0.5):
         The size of the yolo input.
     threshold: float
         The threshold value for consider a true detection.
-    
+
     Returns
     ----------
     boxes: list
-        The list with the labels, probability and bounding boxes.    
+        The list with the labels, probability and bounding boxes.
     '''
 
     labels = get_labels()
 
-    anchors = [
-        [[116, 90], [156, 198], [373, 326]],
-        [[30, 61], [62, 45], [59, 119]],
-        [[10, 13], [16, 30], [33, 23]]
-        ]
+    anchors = [[[116, 90], [156, 198], [373, 326]], [[30, 61], [62, 45], [59, 119]], [[10, 13], [16, 30], [33, 23]]]
 
     n_anchors = len(anchors)
     n_preds = len(pred_img)
     boxes = []
 
     for n_pred, n_anch in product(range(n_preds), range(n_anchors)):
-        
+
         pred = pred_img[n_pred]
 
         n_cells_x = pred.shape[0]
         n_cells_y = pred.shape[1]
-        cell_size_x = int(yolo_size/n_cells_x)
-        cell_size_y = int(yolo_size/n_cells_y)
+        cell_size_x = int(yolo_size / n_cells_x)
+        cell_size_y = int(yolo_size / n_cells_y)
 
-        anchor = pred[:, :, n_anch*85:(n_anch+1)*85]
+        anchor = pred[:, :, n_anch * 85 : (n_anch + 1) * 85]
         detection = sigmoid(anchor[:, :, 4])
 
         for cell_x, cell_y in product(range(n_cells_x), range(n_cells_y)):
@@ -266,25 +262,25 @@ def decode_pred(pred_img, yolo_size, threshold=0.5):
 
             if confidence > threshold:
                 # calculate center
-                x = cell_size_x*(cell_x + sigmoid(anchor[cell_x, cell_y, 0]))
-                y = cell_size_y*(cell_y + sigmoid(anchor[cell_x, cell_y, 1]))
+                x = cell_size_x * (cell_x + sigmoid(anchor[cell_x, cell_y, 0]))
+                y = cell_size_y * (cell_y + sigmoid(anchor[cell_x, cell_y, 1]))
 
                 # calculate width and height
                 scale_w = anchors[n_pred][n_anch][0]
                 scale_h = anchors[n_pred][n_anch][1]
-                w = scale_w*np.exp(anchor[cell_x, cell_y, 2])
-                h = scale_h*np.exp(anchor[cell_x, cell_y, 3])
+                w = scale_w * np.exp(anchor[cell_x, cell_y, 2])
+                h = scale_h * np.exp(anchor[cell_x, cell_y, 3])
 
                 # get label
                 label = labels[np.argmax(anchor[cell_x, cell_y, 5:])]
 
                 # convert to vertices
-                xmin = y - w/2
-                xmax = y + w/2
-                ymin = x - h/2
-                ymax = x + h/2
+                xmin = y - w / 2
+                xmax = y + w / 2
+                ymin = x - h / 2
+                ymax = x + h / 2
 
                 # add to list of boxes
                 boxes.append([label, confidence, xmin, xmax, ymin, ymax])
-    
+
     return boxes

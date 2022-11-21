@@ -1,5 +1,5 @@
-from PIL import Image
 import numpy as np
+from PIL import Image
 
 from src import model
 from src.annotate import annotate_img
@@ -17,12 +17,12 @@ def process_img(file):
     - Decode the tensor output information.
     - Applies non max supression.
     - Scale the result to the original size.
-    
+
     Parameters
     ----------
     file: BufferedReader
         The image information.
-    
+
     Returns
     ----------
     image: PIL.Image
@@ -37,7 +37,7 @@ def process_img(file):
     img_size = image.size
 
     # resize
-    new_image = np.array(image.resize((yolo_size, yolo_size)))/255
+    new_image = np.array(image.resize((yolo_size, yolo_size))) / 255
     new_image = np.expand_dims(new_image, axis=0)
 
     # predict
